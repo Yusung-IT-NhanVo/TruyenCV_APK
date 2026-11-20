@@ -10,7 +10,8 @@ Mục tiêu: Đảm bảo tính liên tục, không lặp lại công việc đ�
 - **Tên dự án**: `TruyenCV_APK` (Tái thiết kế & xây dựng mới ứng dụng đọc truyện TruyenCV & MotTruyen).
 - **Thư mục làm việc**: `D:\LearnBlazor\TruyenCV_APK`
 - **Dự án tiền nhiệm (tham khảo API & luồng nghiệp vụ)**: `D:\LearnBlazor\TruyenCv\TruyenCVApp`
-- **Kho lưu trữ GitHub (Repository)**: `[CHỜ CẤU HÌNH REMOTE TỪ USER - Ví dụ: https://github.com/<user>/TruyenCV_APK.git]`
+- **Kho lưu trữ GitHub (Repository)**: [https://github.com/Yusung-IT-NhanVo/TruyenCV_APK](https://github.com/Yusung-IT-NhanVo/TruyenCV_APK)
+- **Clone URL**: `https://github.com/Yusung-IT-NhanVo/TruyenCV_APK.git`
 - **Nhánh chính**: `main`
 
 ---
@@ -31,7 +32,7 @@ Sau khi hoàn thành mỗi Task hoặc khi xử lý xong một vấn đề kỹ 
 | `TASK-001` | Trích xuất API từ dự án cũ TruyenCVApp | ✅ HOÀN THÀNH | 2026-11-20 | Đã lập file `API_INTEGRATION_SPEC.md` |
 | `TASK-002` | Thiết lập bộ nguyên tắc cốt lõi dự án | ✅ HOÀN THÀNH | 2026-11-20 | Đã lập file `PROJECT_PRINCIPLES.md` |
 | `TASK-003` | Cấu hình Git, nhật ký tiến độ & đồng bộ quy tắc | ✅ HOÀN THÀNH | 2026-11-20 | Khởi tạo repo git local, lập `.gitignore`, `PROGRESS_LOG.md` |
-| `TASK-004` | Cấu hình GitHub Remote Repo | ⏳ CHỜ XÁC NHẬN | 2026-11-20 | Chờ URL repository GitHub từ người dùng để `git remote add origin` |
+| `TASK-004` | Cấu hình GitHub Remote Repo | ✅ HOÀN THÀNH | 2026-11-20 | Đã tạo repo `Yusung-IT-NhanVo/TruyenCV_APK`, push nhánh `main` thành công |
 | `TASK-005` | Khởi tạo khung dự án ứng dụng mới | ⚪ CHƯA BẮT ĐẦU | - | Sẽ thực hiện sau khi thống nhất stack (Blazor/Hybrid/...) |
 
 *Ghi chú trạng thái: ⚪ Chưa bắt đầu | 🔄 Đang thực hiện | ⏳ Chờ xác nhận | ✅ Hoàn thành | ❌ Tạm dừng/Hủy*
