@@ -19,6 +19,7 @@ bin/
 obj/
 *.apk
 *.aab
+apk_output/
 .gradle/
 local.properties
 
