@@ -33,7 +33,8 @@ Sau khi hoàn thành mỗi Task hoặc khi xử lý xong một vấn đề kỹ 
 | `TASK-002` | Thiết lập bộ nguyên tắc cốt lõi dự án | ✅ HOÀN THÀNH | 2026-11-20 | Đã lập file `PROJECT_PRINCIPLES.md` |
 | `TASK-003` | Cấu hình Git, nhật ký tiến độ & đồng bộ quy tắc | ✅ HOÀN THÀNH | 2026-11-20 | Khởi tạo repo git local, lập `.gitignore`, `PROGRESS_LOG.md` |
 | `TASK-004` | Cấu hình GitHub Remote Repo | ✅ HOÀN THÀNH | 2026-11-20 | Đã tạo repo `Yusung-IT-NhanVo/TruyenCV_APK`, push nhánh `main` thành công |
-| `TASK-005` | Khởi tạo khung dự án ứng dụng mới | ⚪ CHƯA BẮT ĐẦU | - | Sẽ thực hiện sau khi thống nhất stack (Blazor/Hybrid/...) |
+| `TASK-005` | Bổ sung quy tắc bắt buộc Unit Test & Self-Healing | ✅ HOÀN THÀNH | 2026-11-21 | Đã tích hợp quy tắc Unit Test và chạy vòng lặp sửa lỗi vào `PROJECT_PRINCIPLES.md` |
+| `TASK-006` | Khởi tạo khung dự án ứng dụng mới | ⚪ CHƯA BẮT ĐẦU | - | Sẽ thực hiện sau khi thống nhất stack (Blazor/Hybrid/...) |
 
 *Ghi chú trạng thái: ⚪ Chưa bắt đầu | 🔄 Đang thực hiện | ⏳ Chờ xác nhận | ✅ Hoàn thành | ❌ Tạm dừng/Hủy*
 
@@ -70,6 +71,16 @@ Sau khi hoàn thành mỗi Task hoặc khi xử lý xong một vấn đề kỹ 
 
 ---
 
+### Ngày 2026-11-21
+
+#### [TASK-005] Bổ sung quy tắc bắt buộc Unit Test & Self-Healing Loop
+- **Mục tiêu**: Bổ sung quy tắc kiểm thử tự động bắt buộc vào nguyên tắc phát triển dự án.
+- **Công việc đã làm**:
+  - Cập nhật [PROJECT_PRINCIPLES.md](file:///d:/LearnBlazor/TruyenCV_APK/PROJECT_PRINCIPLES.md) thêm mục **6. Bắt Buộc Viết Unit Test & Tự Động Xác Minh (Mandatory Unit Testing & Self-Healing Loop)**.
+  - Quy định mọi hàm/logic nghiệp vụ mới phải đi kèm Unit Test (Vitest/Jest/xUnit/Pytest tùy stack).
+  - Quy định vòng lặp tự động chạy test trong terminal và sửa code cho tới khi toàn bộ test cases đều PASS trước khi sang bước tiếp theo.
+
+---
+
 ## 5. Danh Sách Vấn Đề Tồn Tại & Cần Giải Quyết Tiếp Theo
-1. **GitHub Remote URL**: Cần người dùng cung cấp đường dẫn GitHub Repo đích (hoặc xác nhận tạo mới) để gán lệnh `git remote add origin <url>` và thực hiện lệnh push đầu tiên.
-2. **Định hình công nghệ nền tảng cho ứng dụng mới**: Thống nhất với người dùng về công nghệ phát triển ứng dụng mới (ví dụ: .NET MAUI Blazor Hybrid, React/Capacitor, hay nền tảng nào khác).
+1. **Định hình công nghệ nền tảng cho ứng dụng mới**: Thống nhất với người dùng về công nghệ phát triển ứng dụng mới (ví dụ: .NET MAUI Blazor Hybrid, React/Capacitor, hay nền tảng nào khác).

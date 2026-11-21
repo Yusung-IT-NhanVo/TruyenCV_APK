@@ -68,7 +68,18 @@ Mọi giải pháp thiết kế và công nghệ áp dụng vào dự án phải
 
 ---
 
-## 6. Quy Tắc Bắt Buộc Về Git & GitHub (Git & GitHub Automation Discipline)
+## 6. Bắt Buộc Viết Unit Test & Tự Động Xác Minh (Mandatory Unit Testing & Self-Healing Loop)
+
+- **Nguyên tắc đi kèm**: Mọi tính năng mới hoặc hàm xử lý logic mới (API adapters, data mapping, parsers, formatters, download helpers, state management,...) **bắt buộc phải có unit test đi kèm** (sử dụng test runner phù hợp với stack: Vitest / Jest / xUnit / Pytest).
+- **Vòng lặp tự động xác minh (Self-Healing Loop)**:
+  1. Sau khi viết code logic và unit test tương ứng, **bắt buộc tự động chạy lệnh test** trong terminal (`npm test`, `npx vitest run`, `dotnet test`, `pytest`).
+  2. Nếu có bài test thất bại (failed), đọc kỹ log lỗi, phân tích nguyên nhân gốc rễ và tự động sửa code/test cho đến khi **100% test cases đều PASS**.
+  3. Không được phép bypass, bỏ qua (`skip`), comment out hoặc giảm bớt assertion của bài test để đối phó.
+  4. Chỉ chuyển sang bước tiếp theo khi có bằng chứng terminal xác nhận toàn bộ test đã vượt qua thành công.
+
+---
+
+## 7. Quy Tắc Bắt Buộc Về Git & GitHub (Git & GitHub Automation Discipline)
 
 - **Cam kết hoàn tất Task**: Khi bất kỳ một Task nào được xác nhận hoàn tất (Code xong + Kiểm tra thành công), **bắt buộc** phải ghi nhận vào Git và đẩy mã nguồn lên GitHub tương ứng.
 - **Quy trình chuẩn**:
@@ -80,7 +91,7 @@ Mọi giải pháp thiết kế và công nghệ áp dụng vào dự án phải
 
 ---
 
-## 7. Mẫu Báo Cáo Định Kỳ Sau Mỗi Giai Đoạn (Progress Report Template)
+## 8. Mẫu Báo Cáo Định Kỳ Sau Mỗi Giai Đoạn (Progress Report Template)
 
 Khi kết thúc một giai đoạn công việc, báo cáo theo mẫu chuẩn:
 
