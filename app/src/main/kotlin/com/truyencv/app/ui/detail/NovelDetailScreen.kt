@@ -187,7 +187,7 @@ fun NovelDetailScreen(
                 val targetChapterId = remember(uiState.lastProgress, uiState.chapters) {
                     uiState.lastProgress?.chapterId
                         ?: uiState.chapters.minByOrNull { it.chapterOrder }?.id
-                        ?: "1"
+                        ?: ""
                 }
 
                 val readButtonText = if (uiState.lastProgress != null) {

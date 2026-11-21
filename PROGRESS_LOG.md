@@ -187,15 +187,52 @@ Sau khi hoàn thành mỗi Task hoặc khi xử lý xong một vấn đề kỹ 
 
 ---
 
+#### [TASK-010] Triển khai Reader Engine & Background Services (Phase 3: Module G, H)
+- **Mục tiêu**: Xây dựng toàn bộ giao diện và logic màn hình Đọc truyện (Reader Engine) và 2 Android Foreground Services (TTS đọc truyện chạy nền và Downloader tải offline hàng loạt) theo SRS §5.4, §5.5, §5.7.
+- **Công việc đã làm**:
+  - **Module G (Reader Engine & UI)**:
+    + `ReaderViewModel.kt`: Quản lý `ReaderUiState`, tự động tải nội dung chương, prefetch buffer ±6 chương vào SQLite Room, tự động lưu tiến độ đọc (Reading Progress) vào `HistoryRepository`, điều hướng chuyển chương, cập nhật cấu hình đọc.
+    + `ReaderGestures.kt`: Triển khai cử chỉ chạm 3 vùng ngang (0-25% lùi trang/cuộn lên, 25-75% bật tắt thanh công cụ, 75-100% tiến trang/cuộn xuống).
+    + `ReaderTextContent.kt`: Hỗ trợ 2 chế độ đọc: Cuộn liên tục (`SCROLL`) và Lật trang (`PAGE` với `HorizontalPager`), làm sạch HTML, áp dụng font, cỡ chữ, line height, màu nền.
+    + `ReaderMenuBottomSheet.kt`: Tùy chỉnh trực tiếp: Slider cỡ chữ (12sp - 36sp), 4 font chữ (Roboto, Serif, Sans-Serif, Monospace), 5 themes màu đọc (Trắng, Sepia/Giấy cũ, Tối, AMOLED, Bảo vệ mắt), chuyển chế độ đọc, chỉnh giãn dòng (1.2x - 2.0x), nút kích hoạt TTS.
+    + `ReaderScreen.kt`: Tích hợp Gestures, TextContent, TopBar/BottomBar ẩn hiện mượt mà, Slider cuộn chương, `FLAG_KEEP_SCREEN_ON`.
+    + Unit tests: `ReaderViewModelTest.kt` (6/6 tests PASS).
+  - **Module H (Services & Background)**:
+    + `TtsForegroundService.kt`: Android Foreground Service (`mediaPlayback`) tích hợp `android.speech.tts.TextToSpeech`, phân tách câu mượt mà qua `TtsTextSplitter`, tự động đọc tiếp câu/chương sau, expose `serviceState` StateFlow.
+    + `TtsNotificationHelper.kt`: MediaStyle Notification kèm 4 nút điều khiển (Prev, Play/Pause toggle, Next, Stop).
+    + `TtsPlayerState.kt`: Mô hình trạng thái phát TTS, chuyển đổi trạng thái, hằng số Actions & Extras.
+    + `NovelDownloadService.kt`: Android Foreground Service (`dataSync`) tải offline hàng loạt, mã hóa ảnh bìa Base64 lưu vào SQLite để xem offline 100%, exponential backoff retry 3 lần, cooldown 250ms tránh chặn IP.
+    + `DownloadNotificationHelper.kt`: Progress Notification thanh tiến độ %, nút Pause/Resume/Cancel, Completed Notification.
+    + Cập nhật `AndroidManifest.xml` đăng ký quyền `FOREGROUND_SERVICE_MEDIA_PLAYBACK`, `FOREGROUND_SERVICE_DATA_SYNC` và 2 Service components.
+    + Unit tests: `TtsPlayerStateTest.kt` (6/6 tests PASS), `NovelDownloadServiceTest.kt` (5/5 tests PASS).
+  - **Tích hợp Tầng Điều Phối**:
+    + Nối `ReaderScreen` thực tế vào `Navigation.kt` (Navigation 3).
+- **Kiểm thử & Xác minh đầy đủ (Gate Rule 8 Bước)**:
+  - *Build*: `./gradlew assembleDebug` -> **PASS** (Exit code 0, APK hoàn chỉnh).
+  - *Unit Test*: `./gradlew testDebugUnitTest` -> **PASS 100% (93/93 test cases, 0 failures)**.
+  - *Deploy*: `adb install -r app-debug.apk` lên giả lập Android `medium_phone` (`emulator-5554`) thành công.
+  - *Manual Test (Android Device Hub)*:
+    + Màn hình Reader: Tải và hiển thị chương 1 "Vũ Luyện Điên Phong" từ API MotTruyen thật, text format căn lề đẹp mắt.
+    + Cử chỉ 3 vùng chạm: Chạm vùng giữa lập tức hiện TopBar (Quay lại, Tên chương, TTS, Cài đặt) và BottomBar (Prev, Next, Slider Chương 1/6028, A-, A+, Lật trang, Cài đặt).
+    + Reader Menu BottomSheet: Tùy chỉnh cỡ chữ, chọn font, đổi màu theme sang Sepia (Giấy cũ) đổi nền và chữ tức thì.
+    + Lịch sử đọc tự động đồng bộ: Sau khi đọc chương 1, quay lại Tủ Truyện -> Tab "Lịch sử" tự động có badge số `1` hiển thị "Đã đọc: Chương 1: Vũ Luyện Điên Phong (1 phút trước)" kèm nút "Đọc tiếp" và nút xóa.
+  - *Bằng chứng screenshots lưu tại*:
+    + `screenshots/phase3_reader.png`
+    + `screenshots/phase3_reader_bars.png`
+    + `screenshots/phase3_reader_menu.png`
+    + `screenshots/phase3_reader_sepia.png`
+    + `screenshots/phase3_history.png`
+
+---
+
 ## 5. Danh Sách Vấn Đề Tồn Tại & Cần Giải Quyết Tiếp Theo
-1. **Tiến hành Phase 3 (Reader Engine + TTS & Download Services)**:
-   - **Module G (Reader Screen & Engine)**:
-     + Chế độ đọc Cuộn liên tục (Continuous Scroll) & Lật trang (Paged Mode).
-     + Hỗ trợ cử chỉ chạm 3 vùng (Trái/Phải lật trang, Giữa mở menu thanh công cụ).
-     + 5 Themes màu, tùy biến Typography (Font, Size, LineSpacing, Margin).
-     + Tự động lưu tiến độ đọc (Reading Progress) vào SQLite DB.
-     + Prefetch buffer ±6 chương vào SQLite khi đang đọc.
-   - **Module H (Background Services: TTS & Downloader)**:
-     + Android Foreground Service đọc truyện bằng giọng nói (Android TextToSpeech API).
-     + MediaStyle Notification kèm điều khiển Play/Pause/Next/Prev/Tốc độ.
-     + Download Service tải truyện offline hàng loạt chạy ngầm với Pause/Resume/Cancel và lưu SQLite + Cover Base64.
+1. **Tiến hành Phase 4 (Settings Screen, Backup & Restore, Data Management)**:
+   - **Màn hình Cài đặt (`ui/settings/`)**:
+     + Cài đặt chung: Tự động tải trước (Prefetch buffer), Dung lượng lưu trữ cache, Xóa bộ nhớ đệm (Clear Cache), Tự động kiểm tra cập nhật.
+     + Quản lý nguồn truyện (Bật/tắt hoặc sắp xếp thứ tự ưu tiên nguồn TruyenCV / MotTruyen).
+   - **Sao lưu & Phục hồi (Backup & Restore theo SRS §5.8)**:
+     + Xuất dữ liệu Tủ truyện (Bookmarks, Reading History, Settings) ra file JSON kèm SHA-256 checksum.
+     + Nhập và phục hồi dữ liệu từ file JSON, kiểm tra tính toàn vẹn dữ liệu trước khi khôi phục vào Room DB.
+   - **Tối ưu hóa & Đóng gói phát hành (Polishing & Release Build)**:
+     + ProGuard/R8 rules.
+     + Tối ưu kích thước APK & kiểm thử hiệu năng khởi động.

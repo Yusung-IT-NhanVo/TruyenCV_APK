@@ -9,8 +9,8 @@ import com.truyencv.app.ui.detail.ChapterListScreen
 import com.truyencv.app.ui.detail.NovelDetailScreen
 import com.truyencv.app.ui.main.MainScreen
 import com.truyencv.app.ui.navigation.LocalNavigationActions
-import com.truyencv.app.ui.navigation.ReaderPlaceholderScreen
 import com.truyencv.app.ui.navigation.rememberNavigationActions
+import com.truyencv.app.ui.reader.ReaderScreen
 import com.truyencv.app.ui.search.GenreListScreen
 import com.truyencv.app.ui.search.SearchScreen
 
@@ -41,11 +41,11 @@ fun MainNavigation() {
                     )
                 }
                 entry<NavReader> { key ->
-                    ReaderPlaceholderScreen(
+                    ReaderScreen(
                         novelId = key.novelId,
                         chapterId = key.chapterId,
                         onBack = { navActions.navigateBack() },
-                        onViewChapterList = { navActions.navigateToChapterList(key.novelId) }
+                        onNavigateToChapterList = { novelId -> navActions.navigateToChapterList(novelId) }
                     )
                 }
                 entry<NavSearch> { key ->
