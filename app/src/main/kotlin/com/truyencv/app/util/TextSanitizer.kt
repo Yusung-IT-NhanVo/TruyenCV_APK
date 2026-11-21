@@ -14,29 +14,72 @@ object TextSanitizer {
         Pattern.CASE_INSENSITIVE
     )
 
+    private val NUMERIC_DEC_ENTITY = Regex("&#(\\d+);")
+    private val NUMERIC_HEX_ENTITY = Regex("&#x([0-9a-fA-F]+);", RegexOption.IGNORE_CASE)
+    private val NAMED_ENTITY = Regex("&([a-zA-Z]+);")
+
+    private val HTML_ENTITIES: Map<String, String> = mapOf(
+        "nbsp" to " ", "amp" to "&", "quot" to "\"", "apos" to "'", "lt" to "<", "gt" to ">",
+        "hellip" to "…", "mdash" to "—", "ndash" to "–", "laquo" to "«", "raquo" to "»",
+        "lsquo" to "‘", "rsquo" to "’", "ldquo" to "“", "rdquo" to "”", "bull" to "•",
+        // Nguyên âm tiếng Việt thường
+        "aacute" to "á", "agrave" to "à", "acirc" to "â", "atilde" to "ã", "auml" to "ä", "aring" to "å",
+        "eacute" to "é", "egrave" to "è", "ecirc" to "ê", "euml" to "ë",
+        "iacute" to "í", "igrave" to "ì", "icirc" to "î", "iuml" to "ï",
+        "oacute" to "ó", "ograve" to "ò", "ocirc" to "ô", "otilde" to "õ", "ouml" to "ö", "oslash" to "ø",
+        "uacute" to "ú", "ugrave" to "ù", "ucirc" to "û", "uuml" to "ü",
+        "yacute" to "ý", "yuml" to "ÿ",
+        // Nguyên âm tiếng Việt hoa
+        "Aacute" to "Á", "Agrave" to "À", "Acirc" to "Â", "Atilde" to "Ã", "Auml" to "Ä", "Aring" to "Å",
+        "Eacute" to "É", "Egrave" to "È", "Ecirc" to "Ê", "Euml" to "Ë",
+        "Iacute" to "Í", "Igrave" to "Ì", "Icirc" to "Î", "Iuml" to "Ï",
+        "Oacute" to "Ó", "Ograve" to "Ò", "Ocirc" to "Ô", "Otilde" to "Õ", "Ouml" to "Ö", "Oslash" to "Ø",
+        "Uacute" to "Ú", "Ugrave" to "Ù", "Ucirc" to "Û", "Uuml" to "Ü",
+        "Yacute" to "Ý",
+        // Ký tự khác
+        "ccedil" to "ç", "Ccedil" to "Ç", "ntilde" to "ñ", "Ntilde" to "Ñ",
+        "eth" to "ð", "ETH" to "Ð", "thorn" to "þ", "THORN" to "Þ", "szlig" to "ß",
+        "copy" to "©", "reg" to "®", "trade" to "™", "deg" to "°", "plusmn" to "±"
+    )
+
     /**
-     * Loại bỏ các thẻ HTML và giải mã các ký tự entity phổ biến.
+     * Giải mã toàn bộ HTML Entities (numeric decimal, numeric hex và named entities tiếng Việt/HTML4).
+     */
+    fun unescapeHtmlEntities(text: String?): String {
+        if (text.isNullOrBlank()) return ""
+
+        // 1. Thập phân: &#234; -> ê
+        val decReplaced = NUMERIC_DEC_ENTITY.replace(text) { match ->
+            try {
+                match.groupValues[1].toInt().toChar().toString()
+            } catch (_: Exception) {
+                match.value
+            }
+        }
+
+        // 2. Thập lục phân: &#x00ea; -> ê
+        val hexReplaced = NUMERIC_HEX_ENTITY.replace(decReplaced) { match ->
+            try {
+                match.groupValues[1].toInt(16).toChar().toString()
+            } catch (_: Exception) {
+                match.value
+            }
+        }
+
+        // 3. Ký tự có tên: &ecirc; -> ê
+        return NAMED_ENTITY.replace(hexReplaced) { match ->
+            val entityName = match.groupValues[1]
+            HTML_ENTITIES[entityName] ?: match.value
+        }
+    }
+
+    /**
+     * Loại bỏ các thẻ HTML và giải mã toàn bộ các ký tự entity.
      */
     fun cleanHtml(text: String?): String {
         if (text.isNullOrBlank()) return ""
 
-        var cleaned = text
-            .replace("&nbsp;", " ")
-            .replace("&amp;", "&")
-            .replace("&quot;", "\"")
-            .replace("&apos;", "'")
-            .replace("&#39;", "'")
-            .replace("&lt;", "<")
-            .replace("&gt;", ">")
-            .replace("&hellip;", "…")
-            .replace("&mdash;", "—")
-            .replace("&ndash;", "–")
-            .replace("&#8211;", "–")
-            .replace("&#8212;", "—")
-            .replace("&#8216;", "‘")
-            .replace("&#8217;", "’")
-            .replace("&#8220;", "“")
-            .replace("&#8221;", "”")
+        var cleaned = unescapeHtmlEntities(text)
 
         cleaned = HTML_TAG_REGEX.matcher(cleaned).replaceAll("")
         cleaned = MULTI_SPACE_REGEX.matcher(cleaned).replaceAll(" ")

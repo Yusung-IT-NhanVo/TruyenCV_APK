@@ -211,7 +211,7 @@ fun ReaderTextContent(
                             ) {
                                 pageData.paragraphs.forEach { paragraph ->
                                     Text(
-                                        text = "    $paragraph",
+                                        text = paragraph,
                                         fontSize = fontSize.sp,
                                         lineHeight = lineHeightSp,
                                         fontFamily = resolvedFontFamily,
@@ -317,7 +317,7 @@ fun ReaderTextContent(
                         key = { index, _ -> "p_${chapter.id}_$index" }
                     ) { _, paragraph ->
                         Text(
-                            text = "    $paragraph",
+                            text = paragraph,
                             fontSize = fontSize.sp,
                             lineHeight = lineHeightSp,
                             fontFamily = resolvedFontFamily,

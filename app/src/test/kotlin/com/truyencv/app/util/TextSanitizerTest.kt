@@ -15,6 +15,17 @@ class TextSanitizerTest {
     }
 
     @Test
+    fun testUnescapeVietnameseHtmlEntities() {
+        val input = "Li&ecirc;n tiếp bị đ&aacute;nh bại 147 tr&agrave;ng nam nh&acirc;n, cập nhật l&uacute;c 2012"
+        val result = TextSanitizer.cleanHtml(input)
+        assertEquals("Liên tiếp bị đánh bại 147 tràng nam nhân, cập nhật lúc 2012", result)
+
+        val numericInput = "&#76;i&#234;n ti&#7871;p"
+        val numericResult = TextSanitizer.cleanHtml(numericInput)
+        assertEquals("Liên tiếp", numericResult)
+    }
+
+    @Test
     fun testCleanHtmlNullOrEmpty() {
         assertEquals("", TextSanitizer.cleanHtml(null))
         assertEquals("", TextSanitizer.cleanHtml(""))

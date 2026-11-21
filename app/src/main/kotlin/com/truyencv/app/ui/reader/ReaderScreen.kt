@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -44,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -216,93 +219,63 @@ fun ReaderScreen(
                 shadowElevation = 8.dp,
                 color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
             ) {
-                Column(
+                val totalCount = uiState.totalChaptersCount
+                val currentIndex = uiState.currentChapterIndex
+
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 8.dp, vertical = 6.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val totalCount = uiState.totalChaptersCount
-                    val currentIndex = uiState.currentChapterIndex
-                    var sliderPos by remember(currentIndex) { mutableFloatStateOf(currentIndex.toFloat()) }
-
-                    // Chapter navigation slider row
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                    TextButton(
+                        onClick = { viewModel.navigateToPrevChapter() },
+                        enabled = uiState.hasPrevChapter
                     ) {
-                        IconButton(
-                            onClick = { viewModel.navigateToPrevChapter() },
-                            enabled = uiState.hasPrevChapter
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Chương trước"
-                            )
-                        }
-
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(horizontal = 8.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = if (totalCount > 0) {
-                                    "Chương ${currentIndex + 1} / $totalCount"
-                                } else {
-                                    "Chương --"
-                                },
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-
-                            if (totalCount > 1) {
-                                Slider(
-                                    value = sliderPos,
-                                    onValueChange = { sliderPos = it },
-                                    onValueChangeFinished = {
-                                        viewModel.navigateToChapterByIndex(sliderPos.toInt())
-                                    },
-                                    valueRange = 0f..(totalCount - 1).toFloat(),
-                                    steps = (totalCount - 2).coerceAtLeast(0)
-                                )
-                            }
-                        }
-
-                        IconButton(
-                            onClick = { viewModel.navigateToNextChapter() },
-                            enabled = uiState.hasNextChapter
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                contentDescription = "Chương sau"
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Trước")
                     }
 
-                    // Quick settings action row
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically
+                    TextButton(
+                        onClick = { onNavigateToChapterList(novelId) }
                     ) {
-                        TextButton(onClick = { viewModel.setFontSize(uiState.fontSize - 2f) }) {
-                            Text("A-")
+                        Text(
+                            text = if (totalCount > 0) "Chương ${currentIndex + 1} / $totalCount" else "Chương --",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    TextButton(
+                        onClick = { viewModel.navigateToNextChapter() },
+                        enabled = uiState.hasNextChapter
+                    ) {
+                        Text("Sau")
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+
+                    TextButton(
+                        onClick = {
+                            val nextMode = if (uiState.readerMode == "SCROLL") "PAGE" else "SCROLL"
+                            viewModel.setReaderMode(nextMode)
                         }
-                        TextButton(onClick = { viewModel.setFontSize(uiState.fontSize + 2f) }) {
-                            Text("A+")
-                        }
-                        TextButton(
-                            onClick = {
-                                val nextMode = if (uiState.readerMode == "SCROLL") "PAGE" else "SCROLL"
-                                viewModel.setReaderMode(nextMode)
-                            }
-                        ) {
-                            Text(if (uiState.readerMode == "SCROLL") "Lật trang ↔" else "Cuộn dọc ↕")
-                        }
-                        TextButton(onClick = { showBottomSheet = true }) {
-                            Text("Cài đặt")
-                        }
+                    ) {
+                        Text(if (uiState.readerMode == "SCROLL") "Lật trang" else "Cuộn dọc")
+                    }
+
+                    IconButton(onClick = { showBottomSheet = true }) {
+                        Icon(Icons.Default.Settings, contentDescription = "Cài đặt")
                     }
                 }
             }
