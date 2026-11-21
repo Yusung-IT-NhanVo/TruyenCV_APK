@@ -35,7 +35,8 @@ Sau khi hoàn thành mỗi Task hoặc khi xử lý xong một vấn đề kỹ 
 | `TASK-004` | Cấu hình GitHub Remote Repo | ✅ HOÀN THÀNH | 2026-11-20 | Đã tạo repo `Yusung-IT-NhanVo/TruyenCV_APK`, push nhánh `main` thành công |
 | `TASK-005` | Bổ sung quy tắc bắt buộc Unit Test & Gate Rule | ✅ HOÀN THÀNH | 2026-11-21 | Đã tích hợp quy tắc Unit Test, Gate Rule 8 bước & Android Device Hub vào `PROJECT_PRINCIPLES.md` |
 | `TASK-006` | Khởi tạo nền tảng ứng dụng Android native (Phase 0) | ✅ HOÀN THÀNH | 2026-11-21 | Kotlin, Compose, Material 3, Room, Retrofit, Coil 3, KSP, Nav 3, 4 tab shell, AppContainer DI |
-| `TASK-007` | Triển khai Core Layers (Phase 1: Module A, B, C) | ⚪ CHƯA BẮT ĐẦU | - | Sẵn sàng phân bổ Swarm Agents độc lập |
+| `TASK-007` | Triển khai Core Layers (Phase 1: Module A, B, C) | ✅ HOÀN THÀNH | 2026-11-21 | 3 Swarm Agents song song: Room (6 DAOs), 2 APIs, Mappers, Repos, Theme 5 Reader, Components, Nav 3 |
+| `TASK-008` | Triển khai Feature Screens (Phase 2: Module D, E, F) | ⚪ CHƯA BẮT ĐẦU | - | Explore, Search, Ranking, Detail, Library (Tủ Truyện 4 tabs) |
 
 *Ghi chú trạng thái: ⚪ Chưa bắt đầu | 🔄 Đang thực hiện | ⏳ Chờ xác nhận | ✅ Hoàn thành | ❌ Tạm dừng/Hủy*
 
@@ -100,10 +101,34 @@ Sau khi hoàn thành mỗi Task hoặc khi xử lý xong một vấn đề kỹ 
   - *Manual Test (Android Device Hub)*: Sử dụng `android layout --device emulator-5554 --pretty` xác nhận 4 tab hiển thị đúng, tap chuyển tab qua `adb shell input tap` cập nhật đúng màn hình tương ứng.
   - *Bằng chứng*: Lưu ảnh chụp màn hình kiểm thử tại `screenshots/phase0_explore_tab.png` và `screenshots/phase0_settings_tab.png`.
 
+#### [TASK-007] Triển khai Core Layers (Phase 1: Module A, B, C)
+- **Mục tiêu**: Xây dựng toàn bộ các tầng cốt lõi (Data Layer, Shared UI Components & Theme, Navigation & App Shell) bằng 3 Swarm Agents chạy song song độc lập, không xung đột file.
+- **Công việc đã làm**:
+  - **Module A (Data Layer)**:
+    + 6 Room Entities & DAOs: `NovelEntity`/`NovelDao`, `ChapterEntity`/`ChapterDao`, `BookmarkEntity`/`BookmarkDao`, `ReadingHistoryEntity`/`ReadingHistoryDao`, `GenreEntity`/`GenreDao`, `DownloadTaskEntity`/`DownloadTaskDao`.
+    + 2 Remote API services: `TruyenCvApiService` (WP REST API & custom endpoints) và `MotTruyenApiService` (Filter, Search, Listchap, Chapter).
+    + OkHttp Interceptors: `UserAgentInterceptor` và `MotTruyenDefaultParamsInterceptor` (`deviceid=antigravity&os=android&app_version=1.0.6`).
+    + Mappers & Utilities: `GenreMappingTable` (20 canonical slugs), `InterleaveUtil` (xen kẽ kết quả đa nguồn), `TextSanitizer` (làm sạch HTML, xử lý double-slash cover URL, unescape, xóa tiêu đề lặp), `TruyenCvMapper`, `MotTruyenMapper`.
+    + Repositories: `NovelRepositoryImpl`, `ChapterRepositoryImpl`, `BookmarkRepositoryImpl`, `HistoryRepositoryImpl`.
+    + DataStore Preferences: `ReaderPreferences`, `AppPreferences`.
+  - **Module B (UI Components & Theme)**:
+    + Theme Material 3 hoàn chỉnh với 5 bảng màu Reader chuyên biệt: Trắng (Light), Giấy cũ (Sepia), Tối (Dark), Đen sâu (AMOLED), Bảo vệ mắt (Green/E-ink).
+    + 11 Shared UI Components Compose có `@Preview`: `NovelCard`, `NovelListItem`, `ChapterListItem`, `SourceChipGroup`, `GenreChip`, `GenreGrid`, `ShimmerPlaceholder`, `EmptyStateView`, `ErrorStateView`, `NetworkBanner`, `HorizontalCarousel`, `SearchBarField`.
+  - **Module C (Navigation & App Shell)**:
+    + 6 type-safe Navigation 3 `NavKey`: `NavMain`, `NavNovelDetail`, `NavReader`, `NavSearch`, `NavGenreList`, `NavChapterList`.
+    + Điều phối màn hình qua `NavigationActions`, `LocalNavigationActions`, `PlaceholderScreens`, hỗ trợ Edge-to-Edge và WindowInsets an toàn.
+- **Kiểm thử & Xác minh đầy đủ (Gate Rule 8 Bước)**:
+  - *Build*: `./gradlew assembleDebug` -> **PASS** (Exit code 0).
+  - *Lint*: `./gradlew lintDebug` -> **PASS** (0 errors).
+  - *Unit Test*: `./gradlew testDebugUnitTest` -> **PASS 100%** (35/35 test cases: `GenreMappingTableTest` 5/5, `InterleaveUtilTest` 6/6, `TextSanitizerTest` 6/6, `MapperTest` 11/11, `Phase0DomainModelTest` 7/7).
+  - *Deploy*: `adb install -r app-debug.apk` lên Android Emulator `medium_phone` (`emulator-5554`) thành công.
+  - *Manual Test (Android Device Hub)*: Trích xuất `android layout` xác nhận giao diện hiển thị chuẩn xác với Edge-to-Edge, Safe Insets padding, 4 tabs chuyển đổi mượt mà.
+  - *Bằng chứng*: Lưu ảnh chụp màn hình tại `screenshots/phase1_core_layers.png`.
+
 ---
 
 ## 5. Danh Sách Vấn Đề Tồn Tại & Cần Giải Quyết Tiếp Theo
-1. **Tiến hành Phase 1 (Core Layers)**: Phân bổ 3 Module độc lập cho Swarm Agents chạy song song:
-   - **Module A**: Data Layer & Network (Room DAOs, Retrofit API implementation, Mappers, Repositories).
-   - **Module B**: UI Components & Theme (NovelCard, Shimmer, EmptyState, Carousel, Custom Theme).
-   - **Module C**: Navigation & App Shell wiring.
+1. **Tiến hành Phase 2 (Feature Screens)**: Phân bổ 3 Module cho Swarm Agents chạy song song:
+   - **Module D**: Explore + Search (`ui/explore/`, `ui/search/`).
+   - **Module E**: Ranking + Detail (`ui/ranking/`, `ui/detail/`).
+   - **Module F**: Library / Tủ Truyện 4 tabs (`ui/library/`).
