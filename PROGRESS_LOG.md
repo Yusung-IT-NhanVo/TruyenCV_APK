@@ -36,7 +36,8 @@ Sau khi hoàn thành mỗi Task hoặc khi xử lý xong một vấn đề kỹ 
 | `TASK-005` | Bổ sung quy tắc bắt buộc Unit Test & Gate Rule | ✅ HOÀN THÀNH | 2026-11-21 | Đã tích hợp quy tắc Unit Test, Gate Rule 8 bước & Android Device Hub vào `PROJECT_PRINCIPLES.md` |
 | `TASK-006` | Khởi tạo nền tảng ứng dụng Android native (Phase 0) | ✅ HOÀN THÀNH | 2026-11-21 | Kotlin, Compose, Material 3, Room, Retrofit, Coil 3, KSP, Nav 3, 4 tab shell, AppContainer DI |
 | `TASK-007` | Triển khai Core Layers (Phase 1: Module A, B, C) | ✅ HOÀN THÀNH | 2026-11-21 | 3 Swarm Agents song song: Room (6 DAOs), 2 APIs, Mappers, Repos, Theme 5 Reader, Components, Nav 3 |
-| `TASK-008` | Triển khai Feature Screens (Phase 2: Module D, E, F) | ⚪ CHƯA BẮT ĐẦU | - | Explore, Search, Ranking, Detail, Library (Tủ Truyện 4 tabs) |
+| `TASK-008` | Tích hợp CodeGraph Rules cho Android Kotlin | ✅ HOÀN THÀNH | 2026-11-21 | Bổ sung quy tắc Graph-First, xử lý DI blind spots và Kotlin AST scope vào `PROJECT_PRINCIPLES.md` và `.codegraph/rules.md` |
+| `TASK-009` | Triển khai Feature Screens (Phase 2: Module D, E, F) | ⚪ CHƯA BẮT ĐẦU | - | Explore, Search, Ranking, Detail, Library (Tủ Truyện 4 tabs) |
 
 *Ghi chú trạng thái: ⚪ Chưa bắt đầu | 🔄 Đang thực hiện | ⏳ Chờ xác nhận | ✅ Hoàn thành | ❌ Tạm dừng/Hủy*
 
@@ -124,6 +125,16 @@ Sau khi hoàn thành mỗi Task hoặc khi xử lý xong một vấn đề kỹ 
   - *Deploy*: `adb install -r app-debug.apk` lên Android Emulator `medium_phone` (`emulator-5554`) thành công.
   - *Manual Test (Android Device Hub)*: Trích xuất `android layout` xác nhận giao diện hiển thị chuẩn xác với Edge-to-Edge, Safe Insets padding, 4 tabs chuyển đổi mượt mà.
   - *Bằng chứng*: Lưu ảnh chụp màn hình tại `screenshots/phase1_core_layers.png`.
+
+#### [TASK-008] Tích hợp CodeGraph Rules cho Android Kotlin
+- **Mục tiêu**: Bổ sung bộ quy tắc khai thác và sử dụng CodeGraph vào hệ thống nguyên tắc dự án và thư mục `.codegraph/`.
+- **Công việc đã làm**:
+  - Cập nhật [PROJECT_PRINCIPLES.md](file:///d:/LearnBlazor/TruyenCV_APK/PROJECT_PRINCIPLES.md) thêm mục **8. Quy Tắc CodeGraph Cho Dự Án Android Kotlin (CodeGraph Rules)**.
+  - Tạo file [.codegraph/rules.md](file:///d:/LearnBlazor/TruyenCV_APK/.codegraph/rules.md) lưu trữ quy tắc riêng biệt phục vụ công cụ CodeGraph.
+  - Định nghĩa 3 nguyên tắc trọng yếu:
+    1. **Graph-First**: Ưu tiên MCP tool / CLI `codegraph explore` để phân tích định nghĩa, call graph và dependency tree trước khi dùng `grep` hay đọc cả file; khoanh vùng tác động trước khi sửa code.
+    2. **Xử lý điểm mù DI (Dependency Injection)**: Hướng dẫn truy vết từ Interface sang class Implementation thông qua module DI chứa `@Binds`/`@Provides` hoặc container declarations (`AppContainer`).
+    3. **Kiểm tra liên kết ngoài phạm vi Kotlin AST**: Hướng dẫn đối chiếu thêm `AndroidManifest.xml`, tài nguyên `res/` và Gradle files (`build.gradle.kts`, `libs.versions.toml`).
 
 ---
 
