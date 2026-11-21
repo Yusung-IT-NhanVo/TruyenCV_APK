@@ -23,6 +23,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.truyencv.app.R
+import com.truyencv.app.ui.explore.ExploreScreen
+import com.truyencv.app.ui.library.LibraryScreen
+import com.truyencv.app.ui.ranking.RankingScreen
 import com.truyencv.app.ui.theme.TruyenCVTheme
 
 enum class BottomNavTab(val titleRes: Int, val iconEmoji: String) {
@@ -36,7 +39,9 @@ enum class BottomNavTab(val titleRes: Int, val iconEmoji: String) {
 @Composable
 fun MainScreen(
     onNavigateToDetail: (String) -> Unit = {},
-    onNavigateToSearch: () -> Unit = {},
+    onNavigateToSearch: (String?) -> Unit = {},
+    onNavigateToReader: (String, String) -> Unit = { _, _ -> },
+    onNavigateToGenre: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
@@ -78,33 +83,40 @@ fun MainScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
-            contentAlignment = Alignment.Center
+                .padding(innerPadding)
         ) {
             when (currentTab) {
                 BottomNavTab.EXPLORE -> {
-                    Text(
-                        text = "Màn hình Khám Phá (Explore)\nSẽ triển khai ở Phase 2",
-                        style = MaterialTheme.typography.bodyLarge
+                    ExploreScreen(
+                        onNavigateToSearch = { onNavigateToSearch(null) },
+                        onNavigateToDetail = onNavigateToDetail,
+                        onNavigateToGenre = onNavigateToGenre,
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
                 BottomNavTab.RANKING -> {
-                    Text(
-                        text = "Màn hình Bảng Xếp Hạng (Ranking)\nSẽ triển khai ở Phase 2",
-                        style = MaterialTheme.typography.bodyLarge
+                    RankingScreen(
+                        onNavigateToDetail = onNavigateToDetail,
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
                 BottomNavTab.LIBRARY -> {
-                    Text(
-                        text = "Màn hình Tủ Truyện (Library)\nSẽ triển khai ở Phase 2",
-                        style = MaterialTheme.typography.bodyLarge
+                    LibraryScreen(
+                        onNavigateToDetail = onNavigateToDetail,
+                        onNavigateToReader = onNavigateToReader,
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
                 BottomNavTab.SETTINGS -> {
-                    Text(
-                        text = "Màn hình Cài Đặt (Settings)\nSẽ triển khai ở Phase 4",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Màn hình Cài Đặt (Settings)\nSẽ triển khai ở Phase 4",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
                 }
             }
         }

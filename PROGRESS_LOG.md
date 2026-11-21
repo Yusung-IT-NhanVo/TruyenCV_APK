@@ -138,8 +138,64 @@ Sau khi hoàn thành mỗi Task hoặc khi xử lý xong một vấn đề kỹ 
 
 ---
 
+#### [TASK-009] Triển khai Feature Screens (Phase 2: Module D, E, F)
+- **Mục tiêu**: Xây dựng toàn bộ các màn hình tính năng người dùng (Khám Phá, Tìm Kiếm & Lọc Nâng Cao, Danh Mục Thể Loại, Bảng Xếp Hạng 4 Kỳ, Chi Tiết Truyện, Danh Sách Chương, Tủ Truyện 4 Tabs) theo SRS §5.1 - §5.8.
+- **Công việc đã làm**:
+  - **Module D (Khám Phá & Tìm Kiếm)**:
+    + `ExploreViewModel.kt` & `ExploreScreen.kt`: Feed cuộn dọc với Pull-to-Refresh, Banner Carousel tự động chuyển, mục Đề cử nổi bật, Lọc nguồn (Tất cả, TruyenCV, MotTruyen), và phân trang Lazy Loading.
+    + `SearchViewModel.kt` & `SearchScreen.kt`: Thanh tìm kiếm tích hợp debounce 400ms, bộ lọc nguồn, bộ lọc trạng thái, ModalBottomSheet lọc nâng cao (thể loại, sắp xếp, nguồn, trạng thái).
+    + `GenreListScreen.kt`: Lưới 3 cột 20 thể loại canonical chuẩn SRS §4.3.
+    + Unit tests: `ExploreViewModelTest.kt` (6 tests), `SearchViewModelTest.kt` (7 tests).
+  - **Module E (Bảng Xếp Hạng & Chi Tiết Truyện)**:
+    + `RankingViewModel.kt` & `RankingScreen.kt`: 4 kỳ xếp hạng (Ngày, Tuần, Tháng, Tổng), huy hiệu xếp hạng Top 1 (vàng), Top 2 (bạc), Top 3 (đồng).
+    + `NovelDetailViewModel.kt` & `NovelDetailScreen.kt`: Bìa truyện, thông tin tác giả, badges nguồn và trạng thái, nút Đọc từ đầu, nút Theo dõi (Bookmark Room DB), nút Tải về, Card Giới thiệu truyện có rút gọn/mở rộng, 3 chương mới nhất.
+    + `ChapterListScreen.kt`: Hiển thị toàn bộ danh sách chương (vd: 7400+ chương), tìm kiếm theo số chương/tên chương, đảo thứ tự Cũ -> Mới / Mới -> Cũ.
+    + Unit tests: `RankingViewModelTest.kt` (6 tests), `NovelDetailViewModelTest.kt` (5 tests).
+  - **Module F (Tủ Truyện 4 Tabs)**:
+    + `LibraryViewModel.kt` & `LibraryScreen.kt`: Tích hợp 4 Tab nội bộ: 📚 Theo dõi (Bookmarks), 🕒 Lịch sử (Reading History), 💾 Offline (Offline Novels), ⏳ Đang tải (Download Tasks).
+    + `FollowTabContent.kt`, `HistoryTabContent.kt`, `OfflineTabContent.kt`, `DownloadingTabContent.kt`.
+    + Badge đếm số lượng realtime trên tiêu đề tab; EmptyStateView sinh động khi danh sách trống.
+    + Unit tests: `LibraryViewModelTest.kt` (14 tests).
+  - **Tích hợp Tầng Điều Phối**:
+    + Nối toàn bộ màn hình thực tế vào `MainScreen.kt` và `Navigation.kt` (Navigation 3).
+- **Kiểm thử & Xác minh đầy đủ (Gate Rule 8 Bước)**:
+  - *Build*: `./gradlew assembleDebug` -> **PASS** (Exit code 0, APK build thành công).
+  - *Unit Test*: `./gradlew testDebugUnitTest` -> **PASS 100% (74/74 test cases)**:
+    + Phase 0 Models & Phase 1 Core tests: 35/35 PASS.
+    + Module D (Explore + Search): 13/13 PASS.
+    + Module E (Ranking + Detail): 11/11 PASS.
+    + Module F (Library): 14/14 PASS.
+    + Domain Models: 1/1 PASS.
+  - *Deploy*: `adb install -r app-debug.apk` lên giả lập Android `medium_phone` (`emulator-5554`) thành công.
+  - *Manual Test (Android Device Hub)*:
+    + Màn hình Khám Phá: Feed, Carousel Banner, Đề Cử, Nguồn lọc, Search Bar hoạt động mượt mà.
+    + Màn hình BXH: Tab 4 kỳ, badge Top 1/2/3, load dữ liệu API thật từ MotTruyen.
+    + Màn hình Chi Tiết Truyện: Thông tin truyện, nút Đọc, nút Theo dõi, danh sách chương mới.
+    + Màn hình Danh Sách Chương: Tìm kiếm số chương, đảo thứ tự Cũ/Mới, hiển thị 7391 chương thật.
+    + Màn hình Tủ Truyện: Sau khi bấm "Theo dõi" ở Chi tiết, truyện lập tức hiển thị realtime trong tab "Theo dõi" với badge số 1 trên header.
+    + Màn hình Tìm Kiếm: Gõ từ khóa tự động debounce 400ms và hiển thị 40 kết quả interleave từ cả 2 nguồn.
+    + Màn hình Danh Mục Thể Loại: Lưới 3 cột 20 thể loại canonical.
+  - *Bằng chứng screenshots lưu tại*:
+    + `screenshots/phase2_explore.png`
+    + `screenshots/phase2_ranking.png`
+    + `screenshots/phase2_library.png`
+    + `screenshots/phase2_detail.png`
+    + `screenshots/phase2_chapters.png`
+    + `screenshots/phase2_library_bookmarked.png`
+    + `screenshots/phase2_search_results.png`
+    + `screenshots/phase2_genre_list.png`
+
+---
+
 ## 5. Danh Sách Vấn Đề Tồn Tại & Cần Giải Quyết Tiếp Theo
-1. **Tiến hành Phase 2 (Feature Screens)**: Phân bổ 3 Module cho Swarm Agents chạy song song:
-   - **Module D**: Explore + Search (`ui/explore/`, `ui/search/`).
-   - **Module E**: Ranking + Detail (`ui/ranking/`, `ui/detail/`).
-   - **Module F**: Library / Tủ Truyện 4 tabs (`ui/library/`).
+1. **Tiến hành Phase 3 (Reader Engine + TTS & Download Services)**:
+   - **Module G (Reader Screen & Engine)**:
+     + Chế độ đọc Cuộn liên tục (Continuous Scroll) & Lật trang (Paged Mode).
+     + Hỗ trợ cử chỉ chạm 3 vùng (Trái/Phải lật trang, Giữa mở menu thanh công cụ).
+     + 5 Themes màu, tùy biến Typography (Font, Size, LineSpacing, Margin).
+     + Tự động lưu tiến độ đọc (Reading Progress) vào SQLite DB.
+     + Prefetch buffer ±6 chương vào SQLite khi đang đọc.
+   - **Module H (Background Services: TTS & Downloader)**:
+     + Android Foreground Service đọc truyện bằng giọng nói (Android TextToSpeech API).
+     + MediaStyle Notification kèm điều khiển Play/Pause/Next/Prev/Tốc độ.
+     + Download Service tải truyện offline hàng loạt chạy ngầm với Pause/Resume/Cancel và lưu SQLite + Cover Base64.

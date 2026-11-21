@@ -5,14 +5,14 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.truyencv.app.ui.detail.ChapterListScreen
+import com.truyencv.app.ui.detail.NovelDetailScreen
 import com.truyencv.app.ui.main.MainScreen
-import com.truyencv.app.ui.navigation.ChapterListPlaceholderScreen
-import com.truyencv.app.ui.navigation.GenreListPlaceholderScreen
 import com.truyencv.app.ui.navigation.LocalNavigationActions
-import com.truyencv.app.ui.navigation.NovelDetailPlaceholderScreen
 import com.truyencv.app.ui.navigation.ReaderPlaceholderScreen
-import com.truyencv.app.ui.navigation.SearchPlaceholderScreen
 import com.truyencv.app.ui.navigation.rememberNavigationActions
+import com.truyencv.app.ui.search.GenreListScreen
+import com.truyencv.app.ui.search.SearchScreen
 
 @Composable
 fun MainNavigation() {
@@ -27,15 +27,17 @@ fun MainNavigation() {
                 entry<NavMain> {
                     MainScreen(
                         onNavigateToDetail = { novelId -> navActions.navigateToDetail(novelId) },
-                        onNavigateToSearch = { navActions.navigateToSearch() }
+                        onNavigateToSearch = { initialGenre -> navActions.navigateToSearch(initialGenre) },
+                        onNavigateToReader = { novelId, chapterId -> navActions.navigateToReader(novelId, chapterId) },
+                        onNavigateToGenre = { genreSlug -> navActions.navigateToSearch(genreSlug) }
                     )
                 }
                 entry<NavNovelDetail> { key ->
-                    NovelDetailPlaceholderScreen(
+                    NovelDetailScreen(
                         novelId = key.novelId,
                         onBack = { navActions.navigateBack() },
-                        onReadChapter = { chapterId -> navActions.navigateToReader(key.novelId, chapterId) },
-                        onViewChapterList = { navActions.navigateToChapterList(key.novelId) }
+                        onNavigateToReader = { novelId, chapterId -> navActions.navigateToReader(novelId, chapterId) },
+                        onNavigateToFullChapterList = { novelId -> navActions.navigateToChapterList(novelId) }
                     )
                 }
                 entry<NavReader> { key ->
@@ -47,24 +49,24 @@ fun MainNavigation() {
                     )
                 }
                 entry<NavSearch> { key ->
-                    SearchPlaceholderScreen(
+                    SearchScreen(
                         initialGenre = key.initialGenre,
                         onBack = { navActions.navigateBack() },
-                        onSelectGenre = { navActions.navigateToGenreList() },
-                        onSelectNovel = { novelId -> navActions.navigateToDetail(novelId) }
+                        onSelectNovel = { novelId -> navActions.navigateToDetail(novelId) },
+                        onSelectGenre = { navActions.navigateToGenreList() }
                     )
                 }
                 entry<NavGenreList> {
-                    GenreListPlaceholderScreen(
+                    GenreListScreen(
                         onBack = { navActions.navigateBack() },
                         onGenreSelected = { genreSlug -> navActions.navigateToSearch(genreSlug) }
                     )
                 }
                 entry<NavChapterList> { key ->
-                    ChapterListPlaceholderScreen(
+                    ChapterListScreen(
                         novelId = key.novelId,
                         onBack = { navActions.navigateBack() },
-                        onChapterSelected = { chapterId -> navActions.navigateToReader(key.novelId, chapterId) }
+                        onNavigateToReader = { novelId, chapterId -> navActions.navigateToReader(novelId, chapterId) }
                     )
                 }
             }
