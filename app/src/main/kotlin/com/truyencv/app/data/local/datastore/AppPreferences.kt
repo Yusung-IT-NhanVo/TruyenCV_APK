@@ -20,6 +20,7 @@ class AppPreferences(private val dataStore: DataStore<Preferences>) {
         val KEY_THEME_MODE = stringPreferencesKey("theme_mode")
         val KEY_DEFAULT_SOURCE = stringPreferencesKey("default_source")
         val KEY_LAST_BACKUP_TIME = longPreferencesKey("last_backup_time")
+        val KEY_PREFETCH_BUFFER_SIZE = androidx.datastore.preferences.core.intPreferencesKey("prefetch_buffer_size")
 
         const val THEME_SYSTEM = "SYSTEM"
         const val THEME_LIGHT = "LIGHT"
@@ -28,11 +29,13 @@ class AppPreferences(private val dataStore: DataStore<Preferences>) {
         const val SOURCE_ALL = "ALL"
         const val SOURCE_TRUYENCV = "TRUYENCV"
         const val SOURCE_MOTTRUYEN = "MOTTRUYEN"
+        const val DEFAULT_PREFETCH_BUFFER_SIZE = 6
     }
 
     val themeMode: Flow<String> = dataStore.data.map { it[KEY_THEME_MODE] ?: THEME_SYSTEM }
     val defaultSource: Flow<String> = dataStore.data.map { it[KEY_DEFAULT_SOURCE] ?: SOURCE_ALL }
     val lastBackupTime: Flow<Long> = dataStore.data.map { it[KEY_LAST_BACKUP_TIME] ?: 0L }
+    val prefetchBufferSize: Flow<Int> = dataStore.data.map { it[KEY_PREFETCH_BUFFER_SIZE] ?: DEFAULT_PREFETCH_BUFFER_SIZE }
 
     suspend fun setThemeMode(mode: String) {
         dataStore.edit { it[KEY_THEME_MODE] = mode }
@@ -44,5 +47,9 @@ class AppPreferences(private val dataStore: DataStore<Preferences>) {
 
     suspend fun setLastBackupTime(time: Long) {
         dataStore.edit { it[KEY_LAST_BACKUP_TIME] = time }
+    }
+
+    suspend fun setPrefetchBufferSize(size: Int) {
+        dataStore.edit { it[KEY_PREFETCH_BUFFER_SIZE] = size }
     }
 }

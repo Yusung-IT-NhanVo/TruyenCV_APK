@@ -26,6 +26,7 @@ import com.truyencv.app.R
 import com.truyencv.app.ui.explore.ExploreScreen
 import com.truyencv.app.ui.library.LibraryScreen
 import com.truyencv.app.ui.ranking.RankingScreen
+import com.truyencv.app.ui.settings.SettingsScreen
 import com.truyencv.app.ui.theme.TruyenCVTheme
 
 enum class BottomNavTab(val titleRes: Int, val iconEmoji: String) {
@@ -108,15 +109,9 @@ fun MainScreen(
                     )
                 }
                 BottomNavTab.SETTINGS -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Màn hình Cài Đặt (Settings)\nSẽ triển khai ở Phase 4",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
+                    SettingsScreen(
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
         }

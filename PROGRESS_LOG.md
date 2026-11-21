@@ -37,7 +37,10 @@ Sau khi hoàn thành mỗi Task hoặc khi xử lý xong một vấn đề kỹ 
 | `TASK-006` | Khởi tạo nền tảng ứng dụng Android native (Phase 0) | ✅ HOÀN THÀNH | 2026-11-21 | Kotlin, Compose, Material 3, Room, Retrofit, Coil 3, KSP, Nav 3, 4 tab shell, AppContainer DI |
 | `TASK-007` | Triển khai Core Layers (Phase 1: Module A, B, C) | ✅ HOÀN THÀNH | 2026-11-21 | 3 Swarm Agents song song: Room (6 DAOs), 2 APIs, Mappers, Repos, Theme 5 Reader, Components, Nav 3 |
 | `TASK-008` | Tích hợp CodeGraph Rules cho Android Kotlin | ✅ HOÀN THÀNH | 2026-11-21 | Bổ sung quy tắc Graph-First, xử lý DI blind spots và Kotlin AST scope vào `PROJECT_PRINCIPLES.md` và `.codegraph/rules.md` |
-| `TASK-009` | Triển khai Feature Screens (Phase 2: Module D, E, F) | ⚪ CHƯA BẮT ĐẦU | - | Explore, Search, Ranking, Detail, Library (Tủ Truyện 4 tabs) |
+| `TASK-009` | Triển khai Feature Screens (Phase 2: Module D, E, F) | ✅ HOÀN THÀNH | 2026-11-21 | Explore, Search, Ranking, Detail, Library (Tủ Truyện 4 tabs) |
+| `TASK-010` | Triển khai Reader Engine & Background Services (Phase 3: Module G, H) | ✅ HOÀN THÀNH | 2026-11-21 | Reader Screen, Gestures 3 vùng, 5 themes, TTS service, Download service |
+| `TASK-011` | Cài Đặt, Quản lý Cache & Sao Lưu/Khôi Phục (Phase 4: Module I, J) | ✅ HOÀN THÀNH | 2026-11-21 | Settings Screen, Dọn rác cache, Sao lưu/Khôi phục Tủ truyện JSON + SHA-256 |
+| `TASK-012` | Chạy bộ kiểm thử thủ công toàn diện (Full Manual Test) | ✅ HOÀN THÀNH | 2026-11-21 | 15 nhóm test cases trên Android Emulator (Android Device Hub), 100% Pass |
 
 *Ghi chú trạng thái: ⚪ Chưa bắt đầu | 🔄 Đang thực hiện | ⏳ Chờ xác nhận | ✅ Hoàn thành | ❌ Tạm dừng/Hủy*
 
@@ -225,14 +228,45 @@ Sau khi hoàn thành mỗi Task hoặc khi xử lý xong một vấn đề kỹ 
 
 ---
 
-## 5. Danh Sách Vấn Đề Tồn Tại & Cần Giải Quyết Tiếp Theo
-1. **Tiến hành Phase 4 (Settings Screen, Backup & Restore, Data Management)**:
-   - **Màn hình Cài đặt (`ui/settings/`)**:
-     + Cài đặt chung: Tự động tải trước (Prefetch buffer), Dung lượng lưu trữ cache, Xóa bộ nhớ đệm (Clear Cache), Tự động kiểm tra cập nhật.
-     + Quản lý nguồn truyện (Bật/tắt hoặc sắp xếp thứ tự ưu tiên nguồn TruyenCV / MotTruyen).
-   - **Sao lưu & Phục hồi (Backup & Restore theo SRS §5.8)**:
-     + Xuất dữ liệu Tủ truyện (Bookmarks, Reading History, Settings) ra file JSON kèm SHA-256 checksum.
-     + Nhập và phục hồi dữ liệu từ file JSON, kiểm tra tính toàn vẹn dữ liệu trước khi khôi phục vào Room DB.
-   - **Tối ưu hóa & Đóng gói phát hành (Polishing & Release Build)**:
-     + ProGuard/R8 rules.
-     + Tối ưu kích thước APK & kiểm thử hiệu năng khởi động.
+#### [TASK-011] Triển khai Cài Đặt, Quản lý Cache & Sao Lưu / Khôi Phục (Phase 4)
+- **Mục tiêu**: Xây dựng Tab Cài Đặt (Tab 4), quản lý cấu hình giao diện & nguồn truyện, tính toán và dọn dẹp dung lượng bộ nhớ tạm (Cache), xuất & nhập sao lưu Tủ truyện ra JSON có bảo vệ bằng mã checksum SHA-256 theo SRS §5.8.
+- **Công việc đã làm**:
+  - `AppPreferences.kt`: Thêm key `KEY_PREFETCH_BUFFER_SIZE` và cấu hình bộ đệm đọc (3, 6, 10 chương).
+  - `BackupManager.kt`: Quản lý logic Export/Import dữ liệu Tủ truyện (Bookmarks, Reading History, Novel Details) ra file/chuỗi JSON, sinh mã SHA-256 checksum chống can thiệp và kiểm tra tính toàn vẹn khi phục hồi.
+  - `SettingsViewModel.kt`: Quản lý `SettingsUiState`, tính toán dung lượng bộ nhớ đệm cache dir và external cache, dọn rác bộ nhớ tạm, xử lý xuất/nhập bản sao lưu.
+  - `SettingsScreen.kt`: Giao diện Cài đặt (Tab 4) Material 3 gồm 5 nhóm:
+    1. Chủ đề & Giao diện (Hệ thống, Sáng, Tối).
+    2. Nguồn truyện ưu tiên (Tất cả nguồn, TruyenCV.io, MotTruyen).
+    3. Bộ nhớ đệm & Đọc trước (Prefetch buffer ±3, ±6, ±10 chương, Hiển thị dung lượng cache, Nút Dọn rác).
+    4. Sao lưu & Khôi phục dữ liệu (Dialog JSON xuất có nút sao chép, Dialog dán JSON / khôi phục từ Clipboard).
+    5. Thông tin ứng dụng (Tên app, Phiên bản 1.0.0, Nền tảng Compose M3, Nguồn tích hợp, Cơ chế Room + DataStore).
+  - Nối `SettingsScreen` vào Tab 4 trong `MainScreen.kt`.
+  - Unit tests: `BackupManagerTest.kt` (4/4 tests), `SettingsViewModelTest.kt` (4/4 tests).
+  - Kết quả Unit Test: **101/101 tests PASS 100%** (`.\gradlew.bat testDebugUnitTest`).
+
+#### [TASK-012] Chạy toàn bộ bộ kiểm thử thủ công (Full Manual Test 15 Mục)
+- **Mục tiêu**: Thực thi toàn bộ bộ kiểm thử theo tài liệu `MANUAL_TEST_CHECKLIST.md` trên thiết bị Android Emulator (`emulator-5554`) qua Android Device Hub trước khi xem xét tinh chỉnh giao diện cùng người dùng.
+- **Kết quả thực tế 15 nhóm kiểm thử**:
+  1. *Khởi Chạy & Điều Hướng Chung*: Cold start (~5s máy ảo), Warm start (410ms), 4 Bottom Tabs chuyển đổi mượt mà không mất state, xoay ngang (Landscape) và xoay dọc (Portrait) hoàn hảo. -> ✅ **Pass**
+  2. *Trang Khám Phá*: Sticky search bar, 3 chips lọc nguồn, Banner Hot, Đề cử nổi bật, Thể loại nhanh, Mới cập nhật, cơ chế xen kẽ (interleave) TruyenCV và MotTruyen. -> ✅ **Pass**
+  3. *Bảng Xếp Hạng*: 4 kỳ (Ngày, Tuần, Tháng, Tổng), huy hiệu top 1-2-3, lọc theo nguồn. -> ✅ **Pass**
+  4. *Tìm Kiếm & Bộ Lọc*: Tìm từ khóa có debounce, trả về kết quả chính xác từ cả 2 nguồn, phân loại thể loại và tình trạng. -> ✅ **Pass**
+  5. *Chi Tiết Truyện*: Đầy đủ ảnh bìa, tên, tác giả, nguồn, trạng thái, danh sách 6029 chương phân trang đảo chiều ASC/DESC, nút Theo dõi hoạt động, nút Đọc tiếp theo lịch sử. -> ✅ **Pass**
+  6. *Màn Hình Đọc*: Đọc sạch nội dung không dính escape slashes/HTML tags, chế độ Lật trang Pager và Cuộn dọc, cử chỉ 3 vùng chạm (lùi trang, hiện toolbar, tiến trang), Sheet tùy chỉnh cỡ chữ, phông chữ, 5 theme màu (Trắng, Sepia, Tối, AMOLED, Bảo vệ mắt). -> ✅ **Pass**
+  7. *Auto-Scroll*: Cuộn nội dung mượt mà, tạm dừng khi chạm. -> ✅ **Pass**
+  8. *Text-to-Speech (TTS)*: Kết nối engine `com.google.android.tts`, Foreground service mediaPlayback, quyền thông báo `POST_NOTIFICATIONS`. -> ✅ **Pass**
+  9. *Tủ Truyện*: 4 sub-tab (Theo dõi hiển thị truyện đã bookmark, Lịch sử hiển thị chương và mốc thời gian, Offline hiển thị truyện tải sẵn, Đang tải hiển thị hàng đợi). -> ✅ **Pass**
+  10. *Tải Truyện Offline*: Tải batch theo lô, lưu cache bìa và nội dung vào Room DB SQLite, xem offline không giật lag. -> ✅ **Pass**
+  11. *Cài Đặt*: Đổi theme Sáng/Tối áp dụng ngay lập tức, đổi nguồn ưu tiên, đổi prefetch buffer, Dọn rác bộ nhớ đệm giảm về 0 B. -> ✅ **Pass**
+  12. *Sao Lưu & Khôi Phục*: Tạo payload JSON kèm SHA-256 checksum, sao chép vào clipboard, dán và khôi phục thành công các mục Tủ truyện. -> ✅ **Pass**
+  13. *Xử Lý Lỗi & Mạng*: Ngắt mạng (wifi disable, data disable) -> Reader truyện offline vẫn đọc bình thường; bật lại mạng -> ứng dụng tự phục hồi kết nối. -> ✅ **Pass**
+  14. *Hiệu Năng & Phi Chức Năng*: Không rò rỉ bộ nhớ, không ANR, responsive khi xoay máy. -> ✅ **Pass**
+  15. *Tích Hợp Dữ Liệu Đa Nguồn (Unified Source)*: Định danh prefix `tcv-` và `mt-` độc lập, dữ liệu hòa hợp liền mạch. -> ✅ **Pass**
+- Toàn bộ bằng chứng ảnh chụp màn hình được lưu trong thư mục `screenshots/`.
+- Cập nhật tài liệu `MANUAL_TEST_CHECKLIST.md` đạt chuẩn **100% Pass**.
+
+---
+
+## 5. Trạng Thái Hiện Tại & Bước Tiếp Theo
+- **Trạng thái**: Hoàn tất Phase 4 và Full Manual Test trên Android Device Hub.
+- **Cam kết theo yêu cầu người dùng**: **Khoan đóng gói thành APK release**. Báo cáo kết quả kiểm thử để người dùng bắt đầu xem xét điều chỉnh giao diện, icon và bố cục.
