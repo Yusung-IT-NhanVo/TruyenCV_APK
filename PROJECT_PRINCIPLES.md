@@ -68,14 +68,120 @@ Mọi giải pháp thiết kế và công nghệ áp dụng vào dự án phải
 
 ---
 
-## 6. Bắt Buộc Viết Unit Test & Tự Động Xác Minh (Mandatory Unit Testing & Self-Healing Loop)
+## 6. Bắt Buộc Kiểm Thử Từng Task Trước Khi Báo Cáo & Commit (Mandatory Per-Task Testing & Gate Rule)
 
-- **Nguyên tắc đi kèm**: Mọi tính năng mới hoặc hàm xử lý logic mới (API adapters, data mapping, parsers, formatters, download helpers, state management,...) **bắt buộc phải có unit test đi kèm** (sử dụng test runner phù hợp với stack: Vitest / Jest / xUnit / Pytest).
-- **Vòng lặp tự động xác minh (Self-Healing Loop)**:
-  1. Sau khi viết code logic và unit test tương ứng, **bắt buộc tự động chạy lệnh test** trong terminal (`npm test`, `npx vitest run`, `dotnet test`, `pytest`).
-  2. Nếu có bài test thất bại (failed), đọc kỹ log lỗi, phân tích nguyên nhân gốc rễ và tự động sửa code/test cho đến khi **100% test cases đều PASS**.
-  3. Không được phép bypass, bỏ qua (`skip`), comment out hoặc giảm bớt assertion của bài test để đối phó.
-  4. Chỉ chuyển sang bước tiếp theo khi có bằng chứng terminal xác nhận toàn bộ test đã vượt qua thành công.
+### 6.1. Nguyên tắc cốt lõi
+
+- **Mỗi task phải có test riêng**: Mọi tính năng mới, hàm xử lý logic, API adapter, data mapper, parser, formatter, download helper, state management, ViewModel... **bắt buộc phải có unit test đi kèm** trước khi được coi là hoàn thành.
+- **Test framework**: Dùng test runner phù hợp với stack hiện tại (JUnit 5 / Kotlin Test cho Android, Turbine cho Flow, MockK cho mocking).
+- **Test phải có ý nghĩa**: Mỗi test phải kiểm tra behavior thực tế (input → expected output), không phải chỉ kiểm tra code chạy không throw exception.
+
+### 6.2. Vòng lặp bắt buộc: Code → Test → Fix → Pass 100% (Self-Healing Loop)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  1. Viết code cho task                                          │
+│  2. Viết unit test tương ứng cho task đó                        │
+│  3. Chạy test: ./gradlew testDebugUnitTest                      │
+│  4. Nếu FAIL → đọc log → sửa code/test → quay lại bước 3       │
+│  5. Lặp cho đến khi 100% test PASS                              │
+│  6. Chạy kiểm tra thủ công (manual test) trên emulator/device   │
+│  7. Nếu manual test FAIL → sửa code → quay lại bước 3           │
+│  8. Lặp cho đến khi manual test PASS                             │
+│  9. CHỈ KHI CẢ UNIT TEST + MANUAL TEST ĐỀU PASS →              │
+│     mới được báo cáo kết quả và commit vào Git/GitHub            │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 6.3. Các hành vi NGHIÊM CẤM
+
+| ❌ Hành vi bị cấm | Lý do |
+|---|---|
+| Bypass, skip (`@Ignore`, `@Disabled`) bài test đang fail | Giấu lỗi, không giải quyết root cause |
+| Comment out assertion để test pass giả | Vô nghĩa hóa kiểm thử |
+| Giảm bớt assertion hoặc hạ thấp tiêu chí pass | Hạ thấp chất lượng |
+| Báo cáo "đã hoàn thành" khi test đang fail | Vi phạm nguyên tắc §4 (No Unverified Completion) |
+| Commit code lên Git/GitHub khi test chưa pass hoàn toàn | Vi phạm nguyên tắc §7 (Git Discipline) |
+| Chuyển sang task tiếp theo khi task hiện tại chưa pass test | Vi phạm nguyên tắc §1 (No Step Skipping) |
+
+### 6.4. Quy trình Gate trước mỗi commit (6 bước bắt buộc)
+
+| Bước | Lệnh / Hành động | Tiêu chí PASS | Nếu FAIL |
+|------|-------------------|---------------|----------|
+| **1. Build** | `./gradlew assembleDebug` | Exit code 0 | Sửa → chạy lại |
+| **2. Lint** | `./gradlew lintDebug` | Không error | Sửa → chạy lại |
+| **3. Unit Test** | `./gradlew testDebugUnitTest` | 100% pass, 0 failures, 0 skipped | Sửa code/test → chạy lại, KHÔNG ĐƯỢC skip |
+| **4. Manual Test** | Chạy app trên emulator/device **qua Android Device Hub** (xem §6.5) | Tính năng task vừa làm hoạt động đúng đặc tả, có screenshot/layout làm bằng chứng | Sửa → quay lại bước 1 |
+| **5. Ghi nhật ký** | Cập nhật `PROGRESS_LOG.md` | Ghi rõ: task đã làm, test đã chạy, kết quả, bằng chứng | — |
+| **6. Commit + Push** | `git add . && git commit && git push` | Atomic conventional commit | — |
+
+> **Quy tắc tuyệt đối**: Nếu bất kỳ bước nào từ 1-4 FAIL, **CẤM chuyển sang bước tiếp theo**. Phải sửa và lặp lại cho đến khi PASS rồi mới được tiến tiếp. Không có ngoại lệ.
+
+### 6.5. Kiểm Thử Thủ Công Qua Android Device Hub (Mandatory Manual Testing)
+
+Mọi kiểm tra thủ công (Manual Test) **bắt buộc** thực hiện thông qua hệ thống **Android Device Hub** (Antigravity plugin `android-cli`). Quy trình như sau:
+
+#### Bước 1: Chuẩn bị emulator/device
+```bash
+# Liệt kê thiết bị hiện có
+android emulator list
+
+# Nếu chưa có, tạo emulator mới
+android emulator create
+
+# Khởi chạy emulator
+android emulator start <avd-id>
+
+# Chờ boot hoàn tất
+adb -s <serial> wait-for-device shell 'while [ -z "$(getprop sys.boot_completed)" ]; do sleep 1; done'
+```
+
+#### Bước 2: Build & Deploy APK lên emulator
+```bash
+# Build APK debug
+./gradlew assembleDebug
+
+# Cài đặt lên emulator (android install nhanh hơn adb install)
+android install --apks=app/build/outputs/apk/debug/app-debug.apk --device <serial>
+
+# Hoặc build + deploy + chạy 1 lệnh
+android run --device <serial>
+```
+
+#### Bước 3: Kiểm tra UI bằng lệnh inspect
+```bash
+# Đọc cấu trúc UI (text-based, nhanh)
+android layout --device <serial> --pretty
+
+# Chụp screenshot có đánh số phần tử
+android screen capture --device <serial> --annotate --output <screenshot_path>.png
+
+# Chụp screenshot thường (không annotate)
+android screen capture --device <serial> --output <screenshot_path>.png
+```
+
+#### Bước 4: Thao tác trên device nếu cần
+```bash
+# Tap vào phần tử #N từ annotated screenshot
+adb -s <serial> shell $(android screen resolve --screenshot <screenshot_path>.png --string "input tap #7")
+
+# Nhập text
+adb -s <serial> shell input text '<text>'
+
+# Nhấn nút Back
+adb -s <serial> shell input keyevent KEYCODE_BACK
+
+# Vuốt (swipe)
+adb -s <serial> shell input swipe x1 y1 x2 y2
+```
+
+#### Bước 5: Thu thập bằng chứng
+Sau khi kiểm tra, **bắt buộc lưu bằng chứng** gồm:
+- **Screenshot** chức năng hoạt động đúng (file `.png`)
+- **Layout dump** xác nhận UI elements hiển thị đúng (output `android layout`)
+- Ghi nhận vào `PROGRESS_LOG.md`: tên task, lệnh đã chạy, kết quả, đường dẫn screenshot
+
+> **Lưu ý**: Người dùng có thể mở panel **Android Device Hub** trong Antigravity IDE để xem mirror live màn hình emulator/device và tương tác trực tiếp (chạm, gõ, vuốt). Agent sử dụng `android layout` / `android screen` / `adb shell input` để kiểm tra tự động.
 
 ---
 

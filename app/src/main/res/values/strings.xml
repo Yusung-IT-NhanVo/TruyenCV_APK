@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">TruyenCV</string>
+    <string name="tab_explore">Khám Phá</string>
+    <string name="tab_ranking">BXH</string>
+    <string name="tab_library">Tủ Truyện</string>
+    <string name="tab_settings">Cài Đặt</string>
+</resources>
